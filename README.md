@@ -1,48 +1,95 @@
 # Allianz-Arena-Kalender für Google Calendar
 
-Dieses Projekt liest täglich die offiziellen Seiten der Allianz Arena und erzeugt einen abonnierbaren Kalender. Übernommen werden nur Veranstaltungen mit festem Datum und fester Uhrzeit. Öffnungszeiten, Touren, Museumstermine, Schließtage und noch nicht terminierte Spiele werden ignoriert.
+Dieses Projekt erzeugt automatisch einen abonnierbaren ICS-Kalender aus den offiziellen Veranstaltungsseiten der Allianz Arena.
 
-## Einmalige Einrichtung auf GitHub
+**Kalender abonnieren:**  
+https://joey96cle.github.io/AlliArenCal/allianz-arena.ics
 
-1. Entpacke die ZIP-Datei auf dem PC.
-2. Öffne dein bereits angelegtes GitHub-Repository.
-3. Klicke **Add file → Upload files**.
-4. Ziehe **den Inhalt** des Ordners `allianz-arena-calendar` in das Upload-Feld – einschließlich der Ordner `.github` und `docs`. Nicht den äußeren Ordner hochladen.
-5. Klicke unten auf **Commit changes**.
-6. Öffne im Repository **Settings → Actions → General**. Unter **Workflow permissions** wählst du **Read and write permissions** und speicherst.
-7. Öffne **Actions → Allianz-Arena-Kalender aktualisieren → Run workflow → Run workflow**.
-8. Warte auf den grünen Haken. Danach sollte `docs/status.json` eine Eventanzahl größer als 0 anzeigen.
-9. Öffne **Settings → Pages**. Wähle bei **Source** „Deploy from a branch“, bei **Branch** `main` und als Ordner `/docs`; dann **Save**.
+## Enthaltene Termine
 
-Deine Kalenderadresse lautet anschließend normalerweise:
+Übernommen werden Veranstaltungen mit eindeutig festgelegtem Datum und Uhrzeit, insbesondere:
 
-```text
-https://DEIN-GITHUB-NAME.github.io/REPOSITORY-NAME/allianz-arena.ics
-```
+- Heimspiele des FC Bayern
+- Champions-League- und DFB-Pokal-Spiele
+- Länderspiele
+- NFL-Spiele
+- weitere feste Großveranstaltungen, sofern sie im offiziellen Monatskalender mit konkreter Uhrzeit erscheinen
 
-Du findest die genaue Pages-Adresse nach der Veröffentlichung unter **Settings → Pages**.
+Nicht übernommen werden:
 
-## In Google Calendar abonnieren
+- noch nicht terminierte Spiele und Datumsbereiche
+- Öffnungszeiten
+- Arena-Touren und Museumstermine
+- Sonderausstellungen, Familiensonntage und Schließtage
 
-Das erstmalige Abonnieren geht am zuverlässigsten im Browser (auch später am Handy in der Desktop-Ansicht):
+## Google Calendar
 
-1. Öffne [Google Calendar](https://calendar.google.com/).
-2. Links neben **Weitere Kalender** auf `+` klicken.
+1. [Google Calendar](https://calendar.google.com/) im Browser öffnen.
+2. Neben **Weitere Kalender** auf **+** klicken.
 3. **Per URL** auswählen.
-4. Die oben erzeugte `.ics`-Adresse einfügen und **Kalender hinzufügen** wählen.
+4. Diese Adresse einfügen: **https://joey96cle.github.io/AlliArenCal/allianz-arena.ics**
+5. **Kalender hinzufügen** wählen.
 
-Danach erscheint der Kalender automatisch auch in der Google-Calendar-App auf dem Handy. Du musst weder deinen PC eingeschaltet lassen noch dort ein Programm ausführen. GitHub aktualisiert die Datei jeden Morgen; Google entscheidet selbst, wann abonnierte Kalender neu eingelesen werden, was einige Stunden dauern kann.
+Der abonnierte Kalender erscheint anschließend auch in der Google-Calendar-App auf dem Handy. Google legt selbst fest, wann externe Kalender erneut abgerufen werden. Änderungen können deshalb erst nach einigen Stunden, gelegentlich erst innerhalb von 24 Stunden erscheinen.
 
-## Was automatisch passiert
+## Automatische Aktualisierung
 
-- Die GitHub Action läuft täglich gegen 06:17 Uhr deutscher Sommerzeit bzw. 05:17 Uhr deutscher Winterzeit.
-- Zusätzlich kann sie jederzeit unter **Actions** mit **Run workflow** gestartet werden.
-- Fix terminierte Fußball-, Länderspiel- und NFL-Termine kommen aus der offiziellen Heimspielübersicht.
-- Weitere fixe Großveranstaltungen werden aus dem offiziellen Monatskalender ergänzt.
-- Eine Terminverschiebung behält dieselbe Kalender-ID und sollte daher nicht als Dublette erscheinen.
-- Falls gar kein zukünftiger Termin erkannt wird, überschreibt das Programm den vorhandenen Kalender aus Sicherheitsgründen nicht.
+Der Workflow [Allianz-Arena-Kalender aktualisieren](.github/workflows/update-calendar.yml) läuft täglich um **04:17 Uhr UTC**:
 
-## Fehler prüfen
+- 06:17 Uhr während der deutschen Sommerzeit
+- 05:17 Uhr während der deutschen Winterzeit
 
-Unter **Actions** siehst du den letzten Lauf. In `docs/status.json` stehen die Zahl der erkannten Veranstaltungen und eventuell nicht erreichbare Monatsseiten. Einzelne Seitenfehler verhindern die Aktualisierung nicht, solange mindestens ein künftiger Termin erkannt wird.
+Er kann außerdem unter **Actions → Allianz-Arena-Kalender aktualisieren → Run workflow** manuell gestartet werden.
 
+Der Ablauf:
+
+1. offizielle Allianz-Arena-Seiten abrufen
+2. fixe Veranstaltungen erkennen und unerwünschte Einträge herausfiltern
+3. **docs/allianz-arena.ics** erzeugen
+4. **docs/status.json** aktualisieren
+5. Änderungen automatisch in den Branch **main** übertragen
+6. Veröffentlichung über GitHub Pages
+
+Stabile Event-IDs verhindern bei Terminänderungen möglichst doppelte Kalendereinträge. Wenn keine zukünftige Veranstaltung erkannt wird, bleibt die bestehende ICS-Datei aus Sicherheitsgründen unverändert.
+
+## Status prüfen
+
+Der aktuelle technische Status steht in [docs/status.json](docs/status.json):
+
+- **updated_at:** Zeitpunkt der letzten erfolgreichen Erzeugung
+- **events:** Anzahl der erkannten zukünftigen Veranstaltungen
+- **failed_pages:** Seiten, die beim Abruf nicht erreichbar waren
+
+Ein erfolgreicher Lauf wird unter **Actions** mit einem grünen Haken angezeigt. Danach veröffentlicht der automatische Workflow **pages build and deployment** die neue ICS-Datei.
+
+## Fehlerbehebung
+
+### Workflow wird nicht angezeigt
+
+Die Workflow-Datei muss exakt unter **.github/workflows/update-calendar.yml** liegen.
+
+### Lauf endet nach 15 Minuten
+
+Direkte Abrufe der Allianz-Arena-Webseite können blockiert werden oder in einen Timeout laufen. Der Scraper verwendet deshalb vorrangig eine textbasierte Abrufmethode.
+
+### Push wird mit „fetch first“ abgelehnt
+
+Der Workflow lädt vor dem Push den aktuellen Stand von **main** per Rebase. Dadurch werden zwischenzeitliche Repository-Änderungen berücksichtigt.
+
+### „Keine zukünftigen Veranstaltungen erkannt“
+
+Dann konnte der Parser keine passenden festen Termine erkennen. Die vorhandene ICS-Datei wird dabei nicht überschrieben. Unter **Actions** den Schritt **Kalender erzeugen** öffnen und das Protokoll prüfen.
+
+## Dateien
+
+| Datei | Zweck |
+|---|---|
+| **scraper.py** | Abruf, Filterung und ICS-Erzeugung |
+| **requirements.txt** | Python-Abhängigkeiten |
+| **.github/workflows/update-calendar.yml** | tägliche und manuelle Automatisierung |
+| **docs/allianz-arena.ics** | öffentlich abonnierbarer Kalender |
+| **docs/status.json** | Status des letzten erfolgreichen Laufs |
+
+## Betrieb
+
+Nach der Einrichtung ist kein laufender PC erforderlich. GitHub Actions aktualisiert den Kalender automatisch, GitHub Pages stellt ihn öffentlich bereit und Google Calendar ruft ihn regelmäßig ab.
