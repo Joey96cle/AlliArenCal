@@ -1,0 +1,54 @@
+name: Allianz-Arena-Kalender aktualisieren
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 4 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: allianz-arena-calendar-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Repository laden
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Python einrichten
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Abhängigkeiten installieren
+        run: pip install -r requirements.txt
+
+      - name: Neueste Änderungen laden
+        run: git pull --rebase origin main
+
+      - name: Kalender erzeugen
+        run: python scraper.py
+
+      - name: Änderungen speichern
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/allianz-arena.ics docs/status.json
+
+          if git diff --cached --quiet; then
+            echo "Keine Kalenderänderungen vorhanden."
+          else
+            git commit -m "Kalender automatisch aktualisieren"
+            git pull --rebase origin main
+            git push origin main
+          fi
