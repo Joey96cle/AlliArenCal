@@ -95,31 +95,55 @@ def text_version(document: str) -> str:
 
 
 def parse_sports(document: str) -> list[Event]:
+    text = text_version(document)
     events: list[Event] = []
-    rows: list[list[str]] = []
-    if "<html" in document[:1000].lower() or "<!doctype" in document[:1000].lower():
-        soup = BeautifulSoup(document, "html.parser")
-        rows = [[clean(c.get_text(" ", strip=True)) for c in tr.find_all(["th", "td"])] for tr in soup.find_all("tr")]
-    else:
-        for line in document.splitlines():
-            if "|" in line:
-                rows.append([clean(c) for c in line.strip().strip("|").split("|")])
 
-    for cells in rows:
-        row = " | ".join(cells)
-        m = SHORT_FIXED.search(row)
-        if not m or "-:-" in row:
-            continue
-        day, month, yy, hour, minute = map(int, m.groups())
-        # Offizielle Tabelle: Liga | Spieltag | Datum | Uhrzeit | Team | Gegner
-        if len(cells) < 6:
-            continue
-        team, opponent = cells[-2], cells[-1]
+    pattern = re.compile(
+        r"(?:BL|NL|CL|Pokal|NFL)\s*\|\s*"
+        r"[^|\n]*\|\s*"
+        r"(?:Mo|Di|Mi|Do|Fr|Sa|So),?\s*"
+        r"(\d{1,2})\.(\d{1,2})\.(\d{2,4})\s*\|\s*"
+        r"(\d{1,2}):(\d{2})\s*\|\s*"
+        r"([^|\n]+?)\s*\|\s*"
+        r"([^|\n]+)",
+        re.IGNORECASE
+    )
+
+    for match in pattern.finditer(text):
+        day, month, year, hour, minute, team, opponent = match.groups()
+
+        year = int(year)
+        if year < 100:
+            year += 2000
+
+        team = clean(team)
+        opponent = clean(opponent)
+
         if IGNORE.search(team + " " + opponent):
             continue
+
         title = f"{team} – {opponent}"
-        start = datetime(2000 + yy, month, day, hour, minute, tzinfo=TZ)
-        events.append(Event(title, start, start + timedelta(hours=3), SPORTS_URL))
+
+        start = datetime(
+            year,
+            int(month),
+            int(day),
+            int(hour),
+            int(minute),
+            tzinfo=TZ
+        )
+
+        events.append(
+            Event(
+                title=title,
+                start=start,
+                end=start + timedelta(hours=3),
+                source=SPORTS_URL
+            )
+        )
+
+    print(f"Fixe Sportveranstaltungen erkannt: {len(events)}")
+
     return dedupe(events)
 
 
