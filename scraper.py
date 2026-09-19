@@ -58,11 +58,11 @@ class Event:
 def fetch(url: str) -> str:
     """Direkt abrufen; bei Sperre/Timeout über einen reinen Text-Proxy erneut versuchen."""
     errors: list[str] = []
-    candidates = [url, "https://r.jina.ai/http://" + url.removeprefix("https://")]
+    candidates = ["https://r.jina.ai/http://" + url.removeprefix("https://"), url]
     for candidate in candidates:
-        for attempt in range(2):
+        for attempt in range(1):
             try:
-                r = requests.get(candidate, headers={"User-Agent": UA, "Accept-Language": "de-DE,de;q=0.9"}, timeout=25)
+                r = requests.get(candidate, headers={"User-Agent": UA, "Accept-Language": "de-DE,de;q=0.9"}, timeout=15)
                 r.raise_for_status()
                 if len(r.text) < 500:
                     raise RuntimeError("Antwort unerwartet kurz")
