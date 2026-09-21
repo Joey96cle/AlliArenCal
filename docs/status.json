@@ -1,5 +1,7 @@
 {
-  "updated_at": "2026-09-20T06:28:47.071181+02:00",
+  "updated_at": "2026-09-21T06:31:23.010369+02:00",
   "events": 10,
-  "failed_pages": []
+  "failed_pages": [
+    "https://allianz-arena.com/de/events/2027-2028/2027-12: Abruf fehlgeschlagen: https://r.jina.ai/http://allianz-arena.com/de/events/2027-2028/2027-12: HTTPSConnectionPool(host='r.jina.ai', port=443): Read timed out. (read timeout=15) | https://allianz-arena.com/de/events/2027-2028/2027-12: HTTPSConnectionPool(host='allianz-arena.com', port=443): Read timed out. (read timeout=15)"
+  ]
 }
