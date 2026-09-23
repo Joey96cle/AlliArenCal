@@ -8,6 +8,7 @@ import html
 import json
 import re
 import time
+import unicodedata
 from dataclasses import dataclass, replace
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -46,6 +47,15 @@ COMPETITIONS = {
     "NFL": ("NFL", "Die NFL ist die höchste US-amerikanische Liga im American Football."),
 }
 _wiki_cache: dict[str, str | None] = {}
+_score_cache: dict[tuple[str, str, str], list[dict]] = {}
+SCORE_SOURCES = (
+    ("soccer", "ger.1"),
+    ("soccer", "ger.dfb_pokal"),
+    ("soccer", "uefa.champions"),
+    ("soccer", "uefa.nations"),
+    ("soccer", "uefa.wchampions"),
+    ("football", "nfl"),
+)
 
 
 @dataclass(frozen=True)
@@ -217,6 +227,84 @@ def wikipedia_summary(title: str) -> str | None:
     return summary
 
 
+def normalize_team(value: str) -> str:
+    value = unicodedata.normalize("NFKD", value).encode("ascii", "ignore").decode().lower()
+    value = re.sub(r"[^a-z0-9]+", " ", value).strip()
+    aliases = {
+        "fc bayern munchen": "bayern",
+        "bayern munchen": "bayern",
+        "bayern munich": "bayern",
+        "fc bayern": "bayern",
+        "1 fc union berlin": "union berlin",
+        "1 fc koln": "koln",
+        "vfb stuttgart": "stuttgart",
+        "paris saint germain": "psg",
+    }
+    return aliases.get(value, value)
+
+
+def teams_match(left: str, right: str) -> bool:
+    left, right = normalize_team(left), normalize_team(right)
+    return left == right or (min(len(left), len(right)) >= 5 and (left in right or right in left))
+
+
+def scoreboard_events(sport: str, league: str, event_date: date) -> list[dict]:
+    key = (sport, league, event_date.isoformat())
+    if key in _score_cache:
+        return _score_cache[key]
+    try:
+        response = requests.get(
+            f"https://site.api.espn.com/apis/site/v2/sports/{sport}/{league}/scoreboard",
+            params={"dates": event_date.strftime("%Y%m%d"), "limit": 100},
+            headers={"User-Agent": UA}, timeout=12,
+        )
+        response.raise_for_status()
+        result = response.json().get("events", [])
+    except Exception as exc:
+        print(f"Ergebnisabruf {league} für {event_date} fehlgeschlagen: {exc}")
+        result = []
+    _score_cache[key] = result
+    return result
+
+
+def external_result(event: Event) -> str | None:
+    """Abgeschlossenen Endstand bei ESPN suchen und über beide Teams absichern."""
+    if " – " not in event.title:
+        return None
+    home_name, away_name = event.title.split(" – ", 1)
+    event_date = event.start.date() if isinstance(event.start, datetime) else event.start
+    for sport, league in SCORE_SOURCES:
+        for candidate in scoreboard_events(sport, league, event_date):
+            competition = (candidate.get("competitions") or [{}])[0]
+            status = competition.get("status", {}).get("type", {})
+            if not status.get("completed"):
+                continue
+            competitors = competition.get("competitors", [])
+            home = next((item for item in competitors if item.get("homeAway") == "home"), None)
+            away = next((item for item in competitors if item.get("homeAway") == "away"), None)
+            if not home or not away:
+                continue
+            source_home = home.get("team", {}).get("displayName", "")
+            source_away = away.get("team", {}).get("displayName", "")
+            if teams_match(home_name, source_home) and teams_match(away_name, source_away):
+                return f"{home.get('score')}:{away.get('score')}"
+    return None
+
+
+def add_external_results(events: list[Event]) -> list[Event]:
+    now = datetime.now(TZ)
+    enriched: list[Event] = []
+    for event in events:
+        is_past_sport = event.category == "Sport" and isinstance(event.start, datetime) and event.start < now
+        if is_past_sport and not event.result:
+            result = external_result(event)
+            if result:
+                print(f"Endstand von ESPN ergänzt: {event.title} {result}")
+                event = replace(event, result=result, details=event.details + ("Ergebnisquelle: ESPN",))
+        enriched.append(event)
+    return enriched
+
+
 def parse_calendar_page(document: str, source: str) -> list[Event]:
     lines = text_version(document).splitlines()
     text = "\n".join(lines)
@@ -314,7 +402,7 @@ def main() -> None:
             calendar_events.extend(parse_calendar_page(fetch(url), url))
         except Exception as exc:
             failures.append(f"{url}: {exc}")
-    events = dedupe(sports + calendar_events)
+    events = add_external_results(dedupe(sports + calendar_events))
     today = datetime.now(TZ).date()
     cutoff = today - timedelta(days=HISTORY_DAYS)
     retained = [event for event in events if (event.start.date() if isinstance(event.start, datetime) else event.start) >= cutoff]
