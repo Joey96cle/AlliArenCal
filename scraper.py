@@ -39,11 +39,11 @@ MONTHS = {n.lower(): i for i, n in enumerate(
     ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"], 1
 )}
 COMPETITIONS = {
-    "BL": ("Bundesliga", "höchste deutsche Fußball-Spielklasse"),
-    "CL": ("UEFA Champions League", "europäischer Vereinswettbewerb der UEFA"),
-    "POKAL": ("DFB-Pokal", "deutscher Fußball-Pokal im K.-o.-System"),
-    "NL": ("UEFA Nations League", "UEFA-Wettbewerb für Nationalmannschaften"),
-    "NFL": ("NFL", "höchste US-amerikanische Liga im American Football"),
+    "BL": ("Bundesliga", "Die Bundesliga ist die höchste deutsche Fußball-Spielklasse."),
+    "CL": ("UEFA Champions League", "Die UEFA Champions League ist der wichtigste europäische Vereinswettbewerb der UEFA."),
+    "POKAL": ("DFB-Pokal", "Der DFB-Pokal ist ein deutscher Fußball-Pokal im K.-o.-System."),
+    "NL": ("UEFA Nations League", "Die UEFA Nations League ist ein UEFA-Wettbewerb für Nationalmannschaften."),
+    "NFL": ("NFL", "Die NFL ist die höchste US-amerikanische Liga im American Football."),
 }
 _wiki_cache: dict[str, str | None] = {}
 
@@ -109,13 +109,13 @@ def text_version(document: str) -> str:
 
 
 def competition_details(code: str, round_value: str) -> tuple[str, ...]:
-    name, background = COMPETITIONS.get(code.upper(), (code, "Sportwettbewerb"))
+    name, background = COMPETITIONS.get(code.upper(), (code, "Dies ist ein Sportwettbewerb."))
     details = [f"Wettbewerb: {name}"]
     round_value = clean(round_value)
     if round_value:
         label = "Runde" if code.upper() == "POKAL" else "Spieltag"
         details.append(f"{label}: {round_value}")
-    details.append(f"Hintergrund: {name} ist ein {background}.")
+    details.append(f"Hintergrund: {background}")
     return tuple(details)
 
 
@@ -183,7 +183,7 @@ def context_details(context: str) -> tuple[str, ...]:
     details: list[str] = []
     for code, (name, background) in COMPETITIONS.items():
         if re.search(re.escape(name), context, re.I) or re.search(rf"\b{re.escape(code)}\b", context, re.I):
-            details.extend((f"Wettbewerb: {name}", f"Hintergrund: {name} ist ein {background}."))
+            details.extend((f"Wettbewerb: {name}", f"Hintergrund: {background}"))
             break
     match = re.search(r"(\d{1,2})\.\s*Spieltag", context, re.I)
     if match:
@@ -221,12 +221,16 @@ def parse_calendar_page(document: str, source: str) -> list[Event]:
     lines = text_version(document).splitlines()
     text = "\n".join(lines)
     events: list[Event] = []
-    for match in DATE_TIME.finditer(text):
-        line_index = text[:match.end()].count("\n")
-        context = " ".join(lines[line_index:line_index + 20])
+    matches = list(DATE_TIME.finditer(text))
+    for index, match in enumerate(matches):
+        # Nur Text bis zum nächsten datierten Eintrag verwenden. So können Ergebnis,
+        # Spieltag oder Wettbewerb nicht vom nachfolgenden Termin übernommen werden.
+        segment_end = matches[index + 1].start() if index + 1 < len(matches) else len(text)
+        segment_lines = text[match.end():segment_end].splitlines()
+        context = " ".join(segment_lines)
         if IGNORE.search(context):
             continue
-        title = plausible_title(lines, line_index)
+        title = plausible_title(segment_lines, 0)
         if not title:
             continue
         day, month_name, year, hour, minute = match.groups()
