@@ -237,6 +237,11 @@ def parse_calendar_page(document: str, source: str) -> list[Event]:
         start = datetime(int(year), MONTHS[month_name.lower()], int(day), int(hour), int(minute), tzinfo=TZ)
         is_sport = " – " in title or "nfl" in context.lower()
         details = context_details(context) if is_sport else ()
+        if is_sport and not details:
+            details = (
+                "Art: Sportveranstaltung",
+                "Wettbewerb/Spieltag: auf der offiziellen Veranstaltungsseite nicht eindeutig angegeben",
+            )
         if not is_sport:
             artist_info = wikipedia_summary(title)
             details = ("Art: Konzert oder Live-Veranstaltung",)
