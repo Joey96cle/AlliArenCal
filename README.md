@@ -28,7 +28,14 @@ Die Beschreibung eines Sporttermins enthält – soweit auf der offiziellen Seit
 
 Bei Konzert- und Live-Terminen wird nach Möglichkeit eine kurze Hintergrundinformation zum Künstler ergänzt. Ist keine eindeutige Information verfügbar, bleibt es bei einer neutralen Einordnung als Konzert oder Live-Veranstaltung.
 
-Der Kalender behält vergangene Veranstaltungen rollierend für **365 Tage**. Sobald die offizielle Monatsseite einen Endstand nennt, erscheint er im Titel und in der Beschreibung des Sporttermins. Die stabile Event-ID sorgt dafür, dass Google den bestehenden Termin aktualisieren kann, statt einen zweiten Termin anzulegen.
+Der Kalender behält vergangene Veranstaltungen rollierend für **365 Tage**. Sobald die offizielle Monatsseite einen Endstand nennt, erscheint er im Titel und in der Beschreibung des Sporttermins, zum Beispiel:
+
+- **FC Bayern München – Real Madrid (4:3)**
+- Beschreibung: **Endstand: 4:3**
+
+Fehlen Wettbewerb, Spieltag oder Endstand auf der offiziellen Veranstaltungsseite, wird nichts geraten. Der Kalendereintrag weist stattdessen darauf hin, dass diese Angabe nicht eindeutig verfügbar ist.
+
+Die stabile Event-ID sorgt dafür, dass Google einen bestehenden Termin aktualisieren kann, statt bei einem nachträglich ergänzten Endstand oder einer Terminverschiebung einen zweiten Termin anzulegen.
 
 ## Google Calendar
 
