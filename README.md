@@ -13,7 +13,7 @@ https://joey96cle.github.io/AlliArenCal/allianz-arena.ics
 - Champions-League- und DFB-Pokal-Spiele
 - Länderspiele
 - NFL-Spiele
-- weitere feste Großveranstaltungen, sofern sie im offiziellen Monatskalender mit konkreter Uhrzeit erscheinen
+- Konzerte und weitere feste Großveranstaltungen, sofern sie im offiziellen Monatskalender mit konkreter Uhrzeit erscheinen
 
 Nicht übernommen werden:
 
@@ -21,6 +21,14 @@ Nicht übernommen werden:
 - Öffnungszeiten
 - Arena-Touren und Museumstermine
 - Sonderausstellungen, Familiensonntage und Schließtage
+
+## Zusatzinformationen und Ergebnisse
+
+Die Beschreibung eines Sporttermins enthält – soweit auf der offiziellen Seite angegeben – den Wettbewerb sowie Spieltag oder Pokalrunde. Eine kurze Erklärung ordnet Bundesliga, Champions League, DFB-Pokal, Nations League oder NFL ein.
+
+Bei Konzert- und Live-Terminen wird nach Möglichkeit eine kurze Hintergrundinformation zum Künstler ergänzt. Ist keine eindeutige Information verfügbar, bleibt es bei einer neutralen Einordnung als Konzert oder Live-Veranstaltung.
+
+Der Kalender behält vergangene Veranstaltungen rollierend für **365 Tage**. Sobald die offizielle Monatsseite einen Endstand nennt, erscheint er im Titel und in der Beschreibung des Sporttermins. Die stabile Event-ID sorgt dafür, dass Google den bestehenden Termin aktualisieren kann, statt einen zweiten Termin anzulegen.
 
 ## Google Calendar
 
@@ -30,7 +38,7 @@ Nicht übernommen werden:
 4. Diese Adresse einfügen: **https://joey96cle.github.io/AlliArenCal/allianz-arena.ics**
 5. **Kalender hinzufügen** wählen.
 
-Der abonnierte Kalender erscheint anschließend auch in der Google-Calendar-App auf dem Handy. Google legt selbst fest, wann externe Kalender erneut abgerufen werden. Änderungen können deshalb erst nach einigen Stunden, gelegentlich erst innerhalb von 24 Stunden erscheinen.
+Der abonnierte Kalender erscheint anschließend auch in der Google-Calendar-App auf dem Handy. Google legt selbst fest, wann externe Kalender erneut abgerufen werden. Änderungen und Endstände können deshalb erst nach einigen Stunden, gelegentlich erst innerhalb von 24 Stunden erscheinen.
 
 ## Automatische Aktualisierung
 
@@ -44,20 +52,22 @@ Er kann außerdem unter **Actions → Allianz-Arena-Kalender aktualisieren → R
 Der Ablauf:
 
 1. offizielle Allianz-Arena-Seiten abrufen
-2. fixe Veranstaltungen erkennen und unerwünschte Einträge herausfiltern
+2. fixe Veranstaltungen, Zusatzinformationen und Endstände erkennen
 3. **docs/allianz-arena.ics** erzeugen
 4. **docs/status.json** aktualisieren
 5. Änderungen automatisch in den Branch **main** übertragen
 6. Veröffentlichung über GitHub Pages
 
-Stabile Event-IDs verhindern bei Terminänderungen möglichst doppelte Kalendereinträge. Wenn keine zukünftige Veranstaltung erkannt wird, bleibt die bestehende ICS-Datei aus Sicherheitsgründen unverändert.
+Wenn keine zukünftige Veranstaltung erkannt wird, bleibt die bestehende ICS-Datei aus Sicherheitsgründen unverändert.
 
 ## Status prüfen
 
 Der aktuelle technische Status steht in [docs/status.json](docs/status.json):
 
 - **updated_at:** Zeitpunkt der letzten erfolgreichen Erzeugung
-- **events:** Anzahl der erkannten zukünftigen Veranstaltungen
+- **events:** Gesamtzahl der enthaltenen vergangenen und zukünftigen Veranstaltungen
+- **future_events:** Anzahl der zukünftigen Veranstaltungen
+- **history_days:** Länge des rollierenden Rückblicks
 - **failed_pages:** Seiten, die beim Abruf nicht erreichbar waren
 
 Ein erfolgreicher Lauf wird unter **Actions** mit einem grünen Haken angezeigt. Danach veröffentlicht der automatische Workflow **pages build and deployment** die neue ICS-Datei.
@@ -84,7 +94,7 @@ Dann konnte der Parser keine passenden festen Termine erkennen. Die vorhandene I
 
 | Datei | Zweck |
 |---|---|
-| **scraper.py** | Abruf, Filterung und ICS-Erzeugung |
+| **scraper.py** | Abruf, Filterung, Zusatzinformationen, Ergebnisse und ICS-Erzeugung |
 | **requirements.txt** | Python-Abhängigkeiten |
 | **.github/workflows/update-calendar.yml** | tägliche und manuelle Automatisierung |
 | **docs/allianz-arena.ics** | öffentlich abonnierbarer Kalender |
