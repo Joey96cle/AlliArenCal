@@ -28,12 +28,12 @@ Die Beschreibung eines Sporttermins enthält – soweit auf der offiziellen Seit
 
 Bei Konzert- und Live-Terminen wird nach Möglichkeit eine kurze Hintergrundinformation zum Künstler ergänzt. Ist keine eindeutige Information verfügbar, bleibt es bei einer neutralen Einordnung als Konzert oder Live-Veranstaltung.
 
-Der Kalender behält vergangene Veranstaltungen rollierend für **365 Tage**. Sobald die offizielle Monatsseite einen Endstand nennt, erscheint er im Titel und in der Beschreibung des Sporttermins, zum Beispiel:
+Der Kalender behält vergangene Veranstaltungen rollierend für **365 Tage**. Sobald ein Spiel beendet ist, sucht der Generator den Endstand zunächst auf der offiziellen Monatsseite und anschließend zusätzlich bei **ESPN**. Ein gefundener Endstand erscheint im Titel und in der Beschreibung des Sporttermins, zum Beispiel:
 
 - **FC Bayern München – Real Madrid (4:3)**
 - Beschreibung: **Endstand: 4:3**
 
-Fehlen Wettbewerb, Spieltag oder Endstand auf der offiziellen Veranstaltungsseite, wird nichts geraten. Der Kalendereintrag weist stattdessen darauf hin, dass diese Angabe nicht eindeutig verfügbar ist.
+Ein externes Ergebnis wird nur übernommen, wenn Datum, Heimteam, Auswärtsteam und der Status „beendet“ übereinstimmen. In der Beschreibung steht dann **Ergebnisquelle: ESPN**. Kann kein eindeutiger Treffer gefunden werden, wird kein Ergebnis geraten. Fehlen Wettbewerb oder Spieltag auf der offiziellen Veranstaltungsseite, weist der Kalendereintrag darauf hin.
 
 Die stabile Event-ID sorgt dafür, dass Google einen bestehenden Termin aktualisieren kann, statt bei einem nachträglich ergänzten Endstand oder einer Terminverschiebung einen zweiten Termin anzulegen.
 
@@ -59,11 +59,12 @@ Er kann außerdem unter **Actions → Allianz-Arena-Kalender aktualisieren → R
 Der Ablauf:
 
 1. offizielle Allianz-Arena-Seiten abrufen
-2. fixe Veranstaltungen, Zusatzinformationen und Endstände erkennen
-3. **docs/allianz-arena.ics** erzeugen
-4. **docs/status.json** aktualisieren
-5. Änderungen automatisch in den Branch **main** übertragen
-6. Veröffentlichung über GitHub Pages
+2. fixe Veranstaltungen und Zusatzinformationen erkennen
+3. fehlende Endstände abgeschlossener Spiele zusätzlich bei ESPN suchen
+4. **docs/allianz-arena.ics** erzeugen
+5. **docs/status.json** aktualisieren
+6. Änderungen automatisch in den Branch **main** übertragen
+7. Veröffentlichung über GitHub Pages
 
 Wenn keine zukünftige Veranstaltung erkannt wird, bleibt die bestehende ICS-Datei aus Sicherheitsgründen unverändert.
 
