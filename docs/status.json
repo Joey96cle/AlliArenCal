@@ -1,5 +1,7 @@
 {
-  "updated_at": "2026-09-23T06:45:23.642999+02:00",
-  "events": 10,
+  "updated_at": "2026-09-23T07:01:36.056533+02:00",
+  "events": 14,
+  "future_events": 10,
+  "history_days": 365,
   "failed_pages": []
 }
