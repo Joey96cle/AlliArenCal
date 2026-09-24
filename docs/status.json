@@ -1,9 +1,7 @@
 {
-  "updated_at": "2026-09-23T07:23:38.692488+02:00",
+  "updated_at": "2026-09-24T06:29:50.439832+02:00",
   "events": 16,
   "future_events": 10,
   "history_days": 365,
-  "failed_pages": [
-    "https://allianz-arena.com/de/events/2026-2027/2027-6: Abruf fehlgeschlagen: https://r.jina.ai/http://allianz-arena.com/de/events/2026-2027/2027-6: 429 Client Error: Too Many Requests for url: https://r.jina.ai/http://allianz-arena.com/de/events/2026-2027/2027-6 | https://allianz-arena.com/de/events/2026-2027/2027-6: HTTPSConnectionPool(host='allianz-arena.com', port=443): Read timed out. (read timeout=20)"
-  ]
+  "failed_pages": []
 }
