@@ -8,7 +8,7 @@ X-WR-TIMEZONE:Europe/Berlin
 X-PUBLISHED-TTL:PT12H
 BEGIN:VEVENT
 UID:cdd052801c1f43f17534c535@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern München – Real Madrid (4:3)
 DTSTART;TZID=Europe/Berlin:20260415T210000
 DTEND;TZID=Europe/Berlin:20260416T000000
@@ -21,7 +21,7 @@ URL:https://allianz-arena.com/de/events/2025-2026/2026-4
 END:VEVENT
 BEGIN:VEVENT
 UID:9849085cf071628ccbd35407@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern München – VfB Stuttgart (4:2)
 DTSTART;TZID=Europe/Berlin:20260419T173000
 DTEND;TZID=Europe/Berlin:20260419T203000
@@ -34,7 +34,7 @@ URL:https://allianz-arena.com/de/events/2025-2026/2026-4
 END:VEVENT
 BEGIN:VEVENT
 UID:ce33541aa7e5c3f2445d5a0e@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern Frauen – FC Barcelona (1:1)
 DTSTART;TZID=Europe/Berlin:20260425T181500
 DTEND;TZID=Europe/Berlin:20260425T211500
@@ -47,7 +47,7 @@ URL:https://allianz-arena.com/de/events/2025-2026/2026-4
 END:VEVENT
 BEGIN:VEVENT
 UID:90a0b498afa93c046f3fc64b@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern München – 1. FC Heidenheim 1846 (3:3)
 DTSTART;TZID=Europe/Berlin:20260502T153000
 DTEND;TZID=Europe/Berlin:20260502T183000
@@ -60,7 +60,7 @@ URL:https://allianz-arena.com/de/events/2025-2026/2026-5
 END:VEVENT
 BEGIN:VEVENT
 UID:f4bce4bdd24ee87b2c0d9dfc@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern München – Paris Saint-Germain (1:1)
 DTSTART;TZID=Europe/Berlin:20260506T210000
 DTEND;TZID=Europe/Berlin:20260507T000000
@@ -73,7 +73,7 @@ URL:https://allianz-arena.com/de/events/2025-2026/2026-5
 END:VEVENT
 BEGIN:VEVENT
 UID:af196c93fda922d9eb67933f@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – 1. FC Union Berlin (7:0)
 DTSTART;TZID=Europe/Berlin:20260918T203000
 DTEND;TZID=Europe/Berlin:20260918T233000
@@ -88,7 +88,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:2422579a070a28fe616f3f1c@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:Deutschland – Serbien
 DTSTART;TZID=Europe/Berlin:20261001T204500
 DTEND;TZID=Europe/Berlin:20261001T234500
@@ -102,7 +102,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:87b620d837f4b172527377e1@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – RB Leipzig
 DTSTART;TZID=Europe/Berlin:20261017T183000
 DTEND;TZID=Europe/Berlin:20261017T213000
@@ -116,7 +116,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:5232dc3e8a50965eb6ad2305@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – FC Arsenal
 DTSTART;TZID=Europe/Berlin:20261021T210000
 DTEND;TZID=Europe/Berlin:20261022T000000
@@ -131,7 +131,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:c46d5b7246921e371a537484@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – 1. FC Magdeburg
 DTSTART;TZID=Europe/Berlin:20261028T204500
 DTEND;TZID=Europe/Berlin:20261028T234500
@@ -145,7 +145,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:ada36e122fd868586a910a6a@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – Borussia Dortmund
 DTSTART;TZID=Europe/Berlin:20261031T183000
 DTEND;TZID=Europe/Berlin:20261031T213000
@@ -159,7 +159,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:4997c36538b576ae084bda9c@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:Detroit Lions – New England Patriots
 DTSTART;TZID=Europe/Berlin:20261115T153000
 DTEND;TZID=Europe/Berlin:20261115T183000
@@ -173,7 +173,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:e119283f0354ca8a2053a7f7@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – 1.FC Köln
 DTSTART;TZID=Europe/Berlin:20261120T203000
 DTEND;TZID=Europe/Berlin:20261120T233000
@@ -187,7 +187,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:adb884a4c01c928b54d13bb8@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – Slavia Prag
 DTSTART;TZID=Europe/Berlin:20261208T210000
 DTEND;TZID=Europe/Berlin:20261209T000000
@@ -202,7 +202,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:baa2a8d2c6004e590f9f5b5d@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – Real Betis
 DTSTART;TZID=Europe/Berlin:20270127T210000
 DTEND;TZID=Europe/Berlin:20270128T000000
@@ -217,7 +217,7 @@ URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
 END:VEVENT
 BEGIN:VEVENT
 UID:585d127512e6bffee1fd8b40@allianz-arena-calendar
-DTSTAMP:20260925T043108Z
+DTSTAMP:20260926T042905Z
 SUMMARY:FC Bayern – Eintracht Frankfurt
 DTSTART;TZID=Europe/Berlin:20270522T153000
 DTEND;TZID=Europe/Berlin:20270522T183000
