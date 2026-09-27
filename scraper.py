@@ -22,8 +22,8 @@ SPORTS_URL = BASE + "/de/news/terminkalender-nachste-heimspiele-in-der-allianz-a
 OUT = Path("docs/allianz-arena.ics")
 STATUS = Path("docs/status.json")
 TZ = ZoneInfo("Europe/Berlin")
-UA = "Mozilla/5.0 (compatible; AllianzArenaCalendar/3.0; +https://github.com/)"
-HISTORY_DAYS = 365
+UA = "Mozilla/5.0 (compatible; AllianzArenaCalendar/4.0; +https://github.com/)"
+ARCHIVE_START = date(2026, 1, 1)
 
 IGNORE = re.compile(
     r"öffnungszeit|touren?\s*&?\s*museum|tickets verfügbar|sonderausstellung|"
@@ -39,6 +39,14 @@ DATE_TIME = re.compile(
 MONTHS = {n.lower(): i for i, n in enumerate(
     ["Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"], 1
 )}
+MONTH_PATTERN = "|".join(name.capitalize() for name in MONTHS)
+EMOJIS = {
+    "Fußball": "⚽",
+    "Basketball": "🏀",
+    "American Football": "🏈",
+    "Konzert": "🎤",
+    "Veranstaltung": "📅",
+}
 COMPETITIONS = {
     "BL": ("Bundesliga", "Die Bundesliga ist die höchste deutsche Fußball-Spielklasse."),
     "CL": ("UEFA Champions League", "Die UEFA Champions League ist der wichtigste europäische Vereinswettbewerb der UEFA."),
@@ -78,7 +86,11 @@ class Event:
 
     @property
     def summary(self) -> str:
-        return f"{self.title} ({self.result})" if self.result else self.title
+        emoji = EMOJIS.get(self.category, "📅")
+        if self.result and " – " in self.title:
+            home, away = self.title.split(" – ", 1)
+            return f"{emoji} {home} {self.result} {away}"
+        return f"{emoji} {self.title}"
 
 
 def fetch(url: str) -> str:
@@ -144,9 +156,10 @@ def parse_sports(document: str) -> list[Event]:
         if IGNORE.search(team + " " + opponent):
             continue
         start = datetime(year_number, int(month), int(day), int(hour), int(minute), tzinfo=TZ)
+        sport = "American Football" if code.upper() == "NFL" else "Fußball"
         events.append(Event(
             title=f"{team} – {opponent}", start=start, end=start + timedelta(hours=3),
-            source=SPORTS_URL, category="Sport", details=competition_details(code, round_value),
+            source=SPORTS_URL, category=sport, details=competition_details(code, round_value),
         ))
     print(f"Fixe Sportveranstaltungen erkannt: {len(events)}")
     return dedupe(events)
@@ -179,6 +192,53 @@ def plausible_title(lines: list[str], start_index: int) -> str | None:
             if value:
                 return value
     return None
+
+
+def event_category(title: str, context: str) -> str:
+    value = f"{title} {context}".lower()
+    if any(word in value for word in ("nfl", "american football", "detroit lions", "patriots")):
+        return "American Football"
+    if any(word in value for word in ("basketball", "euroleague", "easycredit bbl", "fc bayern basketball")):
+        return "Basketball"
+    if " – " in title or " gegen " in value or any(word in value for word in ("bundesliga", "champions league", "dfb-pokal", "nations league")):
+        return "Fußball"
+    return "Konzert"
+
+
+def parse_concerts(text: str, source: str) -> list[Event]:
+    """Konzerte ohne veröffentlichte Uhrzeit als einzelne Ganztagstermine übernehmen."""
+    events: list[Event] = []
+    pattern = re.compile(
+        rf"(?P<title>[^\n]{{2,160}}?)\s+am\s+(?P<dates>[^\n]{{2,100}}?)\s+"
+        rf"(?P<year>20\d{{2}})\s*(?:in der Allianz Arena\s*)?Konzert-Highlight",
+        re.I,
+    )
+    for match in pattern.finditer(text):
+        raw_title = clean(match.group("title"))
+        # Kalenderzeilen enthalten vor dem Künstler oft noch „Do | 11.06.“.
+        title = clean(re.sub(r"^.*\d{2}\.\d{2}\.\s*", "", raw_title))
+        date_text = clean(match.group("dates"))
+        month_names = re.findall(MONTH_PATTERN, date_text, re.I)
+        days = [int(value) for value in re.findall(r"\b(\d{1,2})\.?\b", date_text)]
+        if not title or not month_names or not days:
+            continue
+        month = MONTHS[month_names[-1].lower()]
+        year = int(match.group("year"))
+        artist_info = wikipedia_summary(title)
+        details: list[str] = []
+        if artist_info:
+            details.append(f"Künstlerinfo: {artist_info}")
+        for day in dict.fromkeys(days):
+            try:
+                start = date(year, month, day)
+            except ValueError:
+                continue
+            events.append(Event(
+                title=title, start=start, end=start + timedelta(days=1), source=source,
+                all_day=True, category="Konzert", details=tuple(details),
+                uid_title=f"{title}-{start.isoformat()}",
+            ))
+    return dedupe(events)
 
 
 def result_from_context(context: str) -> str | None:
@@ -295,7 +355,7 @@ def add_external_results(events: list[Event]) -> list[Event]:
     now = datetime.now(TZ)
     enriched: list[Event] = []
     for event in events:
-        is_past_sport = event.category == "Sport" and isinstance(event.start, datetime) and event.start < now
+        is_past_sport = event.category in {"Fußball", "Basketball", "American Football"} and isinstance(event.start, datetime) and event.start < now
         if is_past_sport and not event.result:
             result = external_result(event)
             if result:
@@ -323,7 +383,8 @@ def parse_calendar_page(document: str, source: str) -> list[Event]:
             continue
         day, month_name, year, hour, minute = match.groups()
         start = datetime(int(year), MONTHS[month_name.lower()], int(day), int(hour), int(minute), tzinfo=TZ)
-        is_sport = " – " in title or "nfl" in context.lower()
+        category = event_category(title, context)
+        is_sport = category in {"Fußball", "Basketball", "American Football"}
         details = context_details(context) if is_sport else ()
         if is_sport and not details:
             details = (
@@ -337,9 +398,10 @@ def parse_calendar_page(document: str, source: str) -> list[Event]:
                 details += (f"Künstlerinfo: {artist_info}",)
         events.append(Event(
             title=title, start=start, end=start + timedelta(hours=3), source=source,
-            category="Sport" if is_sport else "Konzert", details=details,
+            category=category, details=details,
             result=result_from_context(context) if is_sport and start < datetime.now(TZ) else None,
         ))
+    events.extend(parse_concerts(text, source))
     return dedupe(events)
 
 
@@ -347,8 +409,10 @@ def merge_events(old: Event, new: Event) -> Event:
     details = tuple(dict.fromkeys(old.details + new.details))
     # Monatsseiten enthalten meist den Endstand; die Sportübersicht meist Wettbewerb/Spieltag.
     preferred = new if new.result or len(new.details) >= len(old.details) else old
-    return replace(preferred, details=details, result=new.result or old.result,
-                   category="Sport" if "Sport" in (old.category, new.category) else preferred.category)
+    category = preferred.category
+    if category == "Veranstaltung":
+        category = new.category if new.category != "Veranstaltung" else old.category
+    return replace(preferred, details=details, result=new.result or old.result, category=category)
 
 
 def dedupe(events: list[Event]) -> list[Event]:
@@ -374,15 +438,23 @@ def fold(line: str) -> str:
     return "\r\n".join(chunks)
 
 
-def make_ics(events: list[Event]) -> str:
-    now = datetime.now(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ")
+def event_sort_key(event: Event) -> datetime:
+    if isinstance(event.start, datetime):
+        return event.start
+    return datetime.combine(event.start, datetime.min.time(), tzinfo=TZ)
+
+
+def make_ics(events: list[Event], updated_at: datetime) -> str:
+    now = updated_at.astimezone(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ")
+    updated_text = updated_at.astimezone(TZ).strftime("%d.%m.%Y, %H:%M Uhr")
     lines = ["BEGIN:VCALENDAR", "VERSION:2.0", "PRODID:-//Allianz Arena Calendar//DE", "CALSCALE:GREGORIAN", "METHOD:PUBLISH", "X-WR-CALNAME:Allianz Arena", "X-WR-TIMEZONE:Europe/Berlin", "X-PUBLISHED-TTL:PT12H"]
-    for event in sorted(events, key=lambda item: item.start):
+    for event in sorted(events, key=event_sort_key):
         description = list(event.details)
         if event.result:
             description.append(f"Endstand: {event.result}")
-        description.extend((f"Kategorie: {event.category}", f"Offizielle Quelle: {event.source}"))
-        lines += ["BEGIN:VEVENT", f"UID:{event.uid}", f"DTSTAMP:{now}", f"SUMMARY:{escape_ics(event.summary)}"]
+        label = "Sportart" if event.category in {"Fußball", "Basketball", "American Football"} else "Kategorie"
+        description.extend((f"{label}: {event.category}", f"Offizielle Quelle: {event.source}", f"Zuletzt aktualisiert: {updated_text}"))
+        lines += ["BEGIN:VEVENT", f"UID:{event.uid}", f"DTSTAMP:{now}", f"LAST-MODIFIED:{now}", f"SUMMARY:{escape_ics(event.summary)}"]
         if event.all_day:
             lines += [f"DTSTART;VALUE=DATE:{event.start:%Y%m%d}", f"DTEND;VALUE=DATE:{event.end:%Y%m%d}"]
         else:
@@ -404,16 +476,16 @@ def main() -> None:
             failures.append(f"{url}: {exc}")
     events = add_external_results(dedupe(sports + calendar_events))
     today = datetime.now(TZ).date()
-    cutoff = today - timedelta(days=HISTORY_DAYS)
-    retained = [event for event in events if (event.start.date() if isinstance(event.start, datetime) else event.start) >= cutoff]
+    retained = [event for event in events if (event.start.date() if isinstance(event.start, datetime) else event.start) >= ARCHIVE_START]
     future_count = sum((event.start.date() if isinstance(event.start, datetime) else event.start) >= today for event in retained)
     if not retained or not future_count:
         raise RuntimeError("Keine zukünftigen Veranstaltungen erkannt; bestehende ICS-Datei bleibt unverändert.")
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    OUT.write_text(make_ics(retained), encoding="utf-8", newline="")
+    updated_at = datetime.now(TZ)
+    OUT.write_text(make_ics(retained, updated_at), encoding="utf-8", newline="")
     STATUS.write_text(json.dumps({
-        "updated_at": datetime.now(TZ).isoformat(), "events": len(retained),
-        "future_events": future_count, "history_days": HISTORY_DAYS, "failed_pages": failures,
+        "updated_at": updated_at.isoformat(), "events": len(retained),
+        "future_events": future_count, "archive_start": ARCHIVE_START.isoformat(), "failed_pages": failures,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{len(retained)} Veranstaltungen geschrieben ({future_count} zukünftig); {len(failures)} Seitenfehler.")
 
