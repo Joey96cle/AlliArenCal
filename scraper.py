@@ -217,6 +217,13 @@ def parse_concerts(text: str, source: str) -> list[Event]:
         raw_title = clean(match.group("title"))
         # Kalenderzeilen enthalten vor dem Künstler oft noch „Do | 11.06.“.
         title = clean(re.sub(r"^.*\d{2}\.\d{2}\.\s*", "", raw_title))
+        # Die Übersichtsseite stellt dem Künstlernamen teilweise noch einen
+        # ausgeschriebenen Datumsbereich voran (z. B. „Donnerstag, 11. Juni –
+        # Freitag, 12. Juni LINKIN PARK“). Dieser gehört nicht zum Titel und
+        # würde außerdem die Wikipedia-Suche auf ein falsches Ergebnis lenken.
+        weekday = r"(?:Montag|Dienstag|Mittwoch|Donnerstag|Freitag|Samstag|Sonntag)"
+        written_date = rf"{weekday},?\s+\d{{1,2}}\.?\s+(?:{MONTH_PATTERN})"
+        title = clean(re.sub(rf"^{written_date}(?:\s*[-–]\s*{written_date})?\s+", "", title, flags=re.I))
         date_text = clean(match.group("dates"))
         month_names = re.findall(MONTH_PATTERN, date_text, re.I)
         days = [int(value) for value in re.findall(r"\b(\d{1,2})\.?\b", date_text)]
