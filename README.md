@@ -13,7 +13,7 @@ https://joey96cle.github.io/AlliArenCal/allianz-arena.ics
 - Champions-League- und DFB-Pokal-Spiele
 - Länderspiele
 - NFL-Spiele
-- Konzerte und weitere feste Großveranstaltungen, sofern sie im offiziellen Monatskalender mit konkreter Uhrzeit erscheinen
+- Konzerte und weitere feste Großveranstaltungen; Konzerte ohne veröffentlichte Uhrzeit werden als Ganztagstermin übernommen
 
 Nicht übernommen werden:
 
@@ -22,13 +22,23 @@ Nicht übernommen werden:
 - Arena-Touren und Museumstermine
 - Sonderausstellungen, Familiensonntage und Schließtage
 
-## Zusatzinformationen und Ergebnisse
+## Darstellung, Zusatzinformationen und Ergebnisse
+
+Jeder Kalendertitel beginnt mit einem passenden Symbol:
+
+- ⚽ Fußball
+- 🏀 Basketball
+- 🏈 American Football / NFL
+- 🎤 Konzert
+- 📅 sonstige Veranstaltung
+
+Statt der allgemeinen Kategorie „Sport“ wird die konkrete **Sportart** angezeigt. Bei abgeschlossenen Spielen steht das Ergebnis zwischen den Teams, zum Beispiel **⚽ FC Bayern 7:0 Union Berlin**. Jeder Termin enthält außerdem in der Beschreibung den sichtbaren Eintrag **Zuletzt aktualisiert: TT.MM.JJJJ, HH:MM Uhr** und technisch das ICS-Feld **LAST-MODIFIED**.
 
 Die Beschreibung eines Sporttermins enthält – soweit auf der offiziellen Seite angegeben – den Wettbewerb sowie Spieltag oder Pokalrunde. Eine kurze Erklärung ordnet Bundesliga, Champions League, DFB-Pokal, Nations League oder NFL ein.
 
 Bei Konzert- und Live-Terminen wird nach Möglichkeit eine kurze Hintergrundinformation zum Künstler ergänzt. Ist keine eindeutige Information verfügbar, bleibt es bei einer neutralen Einordnung als Konzert oder Live-Veranstaltung.
 
-Der Kalender behält vergangene Veranstaltungen rollierend für **365 Tage**. Sobald ein Spiel beendet ist, sucht der Generator den Endstand zunächst auf der offiziellen Monatsseite und anschließend zusätzlich bei **ESPN**. Ein gefundener Endstand erscheint im Titel und in der Beschreibung des Sporttermins, zum Beispiel:
+Der Kalender enthält rückwirkend **alle erkannten Veranstaltungen ab dem 1. Januar 2026** und zusätzlich die zukünftigen Termine. Sobald ein Spiel beendet ist, sucht der Generator den Endstand zunächst auf der offiziellen Monatsseite und anschließend zusätzlich bei **ESPN**. Ein gefundener Endstand erscheint im Titel und in der Beschreibung des Sporttermins, zum Beispiel:
 
 - **FC Bayern München – Real Madrid (4:3)**
 - Beschreibung: **Endstand: 4:3**
@@ -59,12 +69,13 @@ Er kann außerdem unter **Actions → Allianz-Arena-Kalender aktualisieren → R
 Der Ablauf:
 
 1. offizielle Allianz-Arena-Seiten abrufen
-2. fixe Veranstaltungen und Zusatzinformationen erkennen
-3. fehlende Endstände abgeschlossener Spiele zusätzlich bei ESPN suchen
-4. **docs/allianz-arena.ics** erzeugen
-5. **docs/status.json** aktualisieren
-6. Änderungen automatisch in den Branch **main** übertragen
-7. Veröffentlichung über GitHub Pages
+2. Fußball, Basketball, American Football/NFL, Konzerte und weitere Veranstaltungen unterscheiden
+3. passende Emojis, Zusatzinformationen und den Aktualisierungszeitpunkt ergänzen
+4. fehlende Endstände abgeschlossener Spiele zusätzlich bei ESPN suchen
+5. **docs/allianz-arena.ics** erzeugen
+6. **docs/status.json** aktualisieren
+7. Änderungen automatisch in den Branch **main** übertragen
+8. Veröffentlichung über GitHub Pages
 
 Wenn keine zukünftige Veranstaltung erkannt wird, bleibt die bestehende ICS-Datei aus Sicherheitsgründen unverändert.
 
@@ -75,7 +86,7 @@ Der aktuelle technische Status steht in [docs/status.json](docs/status.json):
 - **updated_at:** Zeitpunkt der letzten erfolgreichen Erzeugung
 - **events:** Gesamtzahl der enthaltenen vergangenen und zukünftigen Veranstaltungen
 - **future_events:** Anzahl der zukünftigen Veranstaltungen
-- **history_days:** Länge des rollierenden Rückblicks
+- **archive_start:** Beginn des Kalendersarchivs (aktuell 2026-01-01)
 - **failed_pages:** Seiten, die beim Abruf nicht erreichbar waren
 
 Ein erfolgreicher Lauf wird unter **Actions** mit einem grünen Haken angezeigt. Danach veröffentlicht der automatische Workflow **pages build and deployment** die neue ICS-Datei.
