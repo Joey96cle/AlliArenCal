@@ -38,9 +38,9 @@ Die Beschreibung eines Sporttermins enthält – soweit auf der offiziellen Seit
 
 Bei Konzert- und Live-Terminen wird nach Möglichkeit eine kurze Hintergrundinformation zum Künstler ergänzt. Ist keine eindeutige Information verfügbar, bleibt es bei einer neutralen Einordnung als Konzert oder Live-Veranstaltung.
 
-Der Kalender enthält rückwirkend **alle erkannten Veranstaltungen ab dem 1. Januar 2026** und zusätzlich die zukünftigen Termine. Sobald ein Spiel beendet ist, sucht der Generator den Endstand zunächst auf der offiziellen Monatsseite und anschließend zusätzlich bei **ESPN**. Ein gefundener Endstand erscheint im Titel und in der Beschreibung des Sporttermins, zum Beispiel:
+Der Kalender enthält rückwirkend **alle erkannten Veranstaltungen ab dem 1. Januar 2026** und zusätzlich die zukünftigen Termine. Bereits gespeicherte vergangene Veranstaltungen bilden ein dauerhaftes Archiv: Sie bleiben einschließlich Endständen und Künstlerinformationen erhalten, auch wenn die Allianz Arena sie später von ihren Übersichtsseiten entfernt. Sobald ein Spiel beendet ist, sucht der Generator den Endstand zunächst auf der offiziellen Monatsseite und anschließend zusätzlich bei **ESPN**. Ein gefundener Endstand erscheint im Titel und in der Beschreibung des Sporttermins, zum Beispiel:
 
-- **FC Bayern München – Real Madrid (4:3)**
+- **⚽ FC Bayern München 4:3 Real Madrid**
 - Beschreibung: **Endstand: 4:3**
 
 Ein externes Ergebnis wird nur übernommen, wenn Datum, Heimteam, Auswärtsteam und der Status „beendet“ übereinstimmen. In der Beschreibung steht dann **Ergebnisquelle: ESPN**. Kann kein eindeutiger Treffer gefunden werden, wird kein Ergebnis geraten. Fehlen Wettbewerb oder Spieltag auf der offiziellen Veranstaltungsseite, weist der Kalendereintrag darauf hin.
@@ -68,14 +68,14 @@ Er kann außerdem unter **Actions → Allianz-Arena-Kalender aktualisieren → R
 
 Der Ablauf:
 
-1. offizielle Allianz-Arena-Seiten abrufen
-2. Fußball, Basketball, American Football/NFL, Konzerte und weitere Veranstaltungen unterscheiden
-3. passende Emojis, Zusatzinformationen und den Aktualisierungszeitpunkt ergänzen
-4. fehlende Endstände abgeschlossener Spiele zusätzlich bei ESPN suchen
-5. **docs/allianz-arena.ics** erzeugen
-6. **docs/status.json** aktualisieren
-7. Änderungen automatisch in den Branch **main** übertragen
-8. Veröffentlichung über GitHub Pages
+1. vorhandene vergangene Termine aus dem ICS-Archiv laden
+2. offizielle Allianz-Arena-Seiten abrufen
+3. Fußball, Basketball, American Football/NFL, Konzerte und weitere Veranstaltungen unterscheiden
+4. passende Emojis, Zusatzinformationen und den Aktualisierungszeitpunkt ergänzen
+5. fehlende Endstände abgeschlossener Spiele zusätzlich bei ESPN suchen
+6. neue Daten mit dem dauerhaften Archiv zusammenführen
+7. **docs/allianz-arena.ics** und **docs/status.json** aktualisieren
+8. Änderungen automatisch in den Branch **main** übertragen und über GitHub Pages veröffentlichen
 
 Wenn keine zukünftige Veranstaltung erkannt wird, bleibt die bestehende ICS-Datei aus Sicherheitsgründen unverändert.
 
