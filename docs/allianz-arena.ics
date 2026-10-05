@@ -338,4 +338,36 @@ DESCRIPTION:Wettbewerb: Bundesliga\nSpieltag: 34\nHintergrund: Die Bun
 URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
  e-in-der-allianz-arena
 END:VEVENT
+BEGIN:VEVENT
+UID:af196c93fda922d9eb67933f@allianz-arena-calendar
+DTSTAMP:20260927T174346Z
+LAST-MODIFIED:20260927T174346Z
+SUMMARY:⚽ FC Bayern 7:0 1. FC Union Berlin
+DTSTART;TZID=Europe/Berlin:20260918T203000
+DTEND;TZID=Europe/Berlin:20260918T233000
+LOCATION:Allianz Arena\, Werner-Heisenberg-Allee 25\, 80939 München
+DESCRIPTION:Wettbewerb: Bundesliga\nSpieltag: 4\nHintergrund: Die Bund
+ esliga ist die höchste deutsche Fußball-Spielklasse.\nErgebnisquelle:
+  ESPN\nEndstand: 7:0\nSportart: Fußball\nOffizielle Quelle: https://a
+ llianz-arena.com/de/news/terminkalender-nachste-heimspiele-in-der-all
+ ianz-arena\nZuletzt aktualisiert: 27.09.2026\, 19:43 Uhr
+URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
+ e-in-der-allianz-arena
+END:VEVENT
+BEGIN:VEVENT
+UID:2422579a070a28fe616f3f1c@allianz-arena-calendar
+DTSTAMP:20260927T174346Z
+LAST-MODIFIED:20260927T174346Z
+SUMMARY:⚽ Deutschland – Serbien
+DTSTART;TZID=Europe/Berlin:20261001T204500
+DTEND;TZID=Europe/Berlin:20261001T234500
+LOCATION:Allianz Arena\, Werner-Heisenberg-Allee 25\, 80939 München
+DESCRIPTION:Wettbewerb: UEFA Nations League\nSpieltag: 3\nHintergrund:
+  Die UEFA Nations League ist ein UEFA-Wettbewerb für Nationalmannscha
+ ften.\nSportart: Fußball\nOffizielle Quelle: https://allianz-arena.co
+ m/de/news/terminkalender-nachste-heimspiele-in-der-allianz-arena\nZul
+ etzt aktualisiert: 27.09.2026\, 19:43 Uhr
+URL:https://allianz-arena.com/de/news/terminkalender-nachste-heimspiel
+ e-in-der-allianz-arena
+END:VEVENT
 END:VCALENDAR
