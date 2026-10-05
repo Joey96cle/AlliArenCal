@@ -77,9 +77,12 @@ class Event:
     details: tuple[str, ...] = ()
     result: str | None = None
     uid_title: str | None = None
+    uid_override: str | None = None
 
     @property
     def uid(self) -> str:
+        if self.uid_override:
+            return self.uid_override
         # Ergebnis und Datum absichtlich nicht einbeziehen: Google aktualisiert das bestehende Event.
         key = normalize_title(self.uid_title or self.title)
         return hashlib.sha256(key.encode()).hexdigest()[:24] + "@allianz-arena-calendar"
@@ -433,6 +436,70 @@ def escape_ics(value: str) -> str:
     return value.replace("\\", "\\\\").replace(";", "\\;").replace(",", "\\,").replace("\n", "\\n")
 
 
+def unescape_ics(value: str) -> str:
+    """Die für Textfelder relevanten iCalendar-Escapes rückgängig machen."""
+    return re.sub(
+        r"\\([nN,;\\])",
+        lambda match: "\n" if match.group(1).lower() == "n" else match.group(1),
+        value,
+    )
+
+
+def parse_existing_ics(path: Path = OUT) -> list[Event]:
+    """Bereits veröffentlichte Termine lesen, damit das Archiv dauerhaft bleibt."""
+    if not path.exists():
+        return []
+    document = path.read_text(encoding="utf-8").replace("\r\n ", "").replace("\n ", "")
+    events: list[Event] = []
+    for body in re.findall(r"BEGIN:VEVENT\r?\n(.*?)\r?\nEND:VEVENT", document, re.S):
+        properties: dict[str, str] = {}
+        for line in body.splitlines():
+            if ":" not in line:
+                continue
+            key, value = line.split(":", 1)
+            properties[key] = unescape_ics(value)
+        uid = properties.get("UID")
+        summary = properties.get("SUMMARY")
+        start_key = next((key for key in properties if key.startswith("DTSTART")), None)
+        end_key = next((key for key in properties if key.startswith("DTEND")), None)
+        if not uid or not summary or not start_key or not end_key:
+            continue
+        all_day = "VALUE=DATE" in start_key
+        try:
+            if all_day:
+                start: datetime | date = datetime.strptime(properties[start_key], "%Y%m%d").date()
+                end: datetime | date = datetime.strptime(properties[end_key], "%Y%m%d").date()
+            else:
+                start = datetime.strptime(properties[start_key], "%Y%m%dT%H%M%S").replace(tzinfo=TZ)
+                end = datetime.strptime(properties[end_key], "%Y%m%dT%H%M%S").replace(tzinfo=TZ)
+        except ValueError:
+            continue
+        description = properties.get("DESCRIPTION", "")
+        description_lines = [clean(line) for line in description.splitlines() if clean(line)]
+        result_match = next((re.match(r"Endstand:\s*(\d{1,2}:\d{1,2})", line, re.I) for line in description_lines if line.lower().startswith("endstand:")), None)
+        result = result_match.group(1) if result_match else None
+        category = "Veranstaltung"
+        for line in description_lines:
+            match = re.match(r"(?:Sportart|Kategorie):\s*(.+)", line, re.I)
+            if match:
+                category = clean(match.group(1))
+                break
+        title = re.sub(r"^(?:⚽|🏀|🏈|🎤|📅)\s*", "", summary).strip()
+        if result and category in {"Fußball", "Basketball", "American Football"}:
+            title = title.replace(f" {result} ", " – ", 1)
+        details = tuple(
+            line for line in description_lines
+            if not re.match(r"(?:Endstand|Sportart|Kategorie|Offizielle Quelle|Zuletzt aktualisiert):", line, re.I)
+        )
+        events.append(Event(
+            title=title, start=start, end=end,
+            source=properties.get("URL", BASE), all_day=all_day,
+            category=category, details=details, result=result,
+            uid_override=uid,
+        ))
+    return events
+
+
 def fold(line: str) -> str:
     chunks: list[str] = []
     while len(line.encode("utf-8")) > 73:
@@ -473,6 +540,16 @@ def make_ics(events: list[Event], updated_at: datetime) -> str:
 
 
 def main() -> None:
+    # Vergangene Einträge sind ein dauerhaftes Archiv. Die Allianz-Arena-Seite
+    # entfernt ältere Termine regelmäßig aus ihren Übersichten; ohne diese
+    # Übernahme würden sie beim nächsten erfolgreichen Lauf aus der ICS fallen.
+    existing = parse_existing_ics()
+    now = datetime.now(TZ)
+    archived = [
+        event for event in existing
+        if event_sort_key(event) < now
+        and (event.start.date() if isinstance(event.start, datetime) else event.start) >= ARCHIVE_START
+    ]
     sports = parse_sports(fetch(SPORTS_URL))
     calendar_events: list[Event] = []
     failures: list[str] = []
@@ -481,8 +558,8 @@ def main() -> None:
             calendar_events.extend(parse_calendar_page(fetch(url), url))
         except Exception as exc:
             failures.append(f"{url}: {exc}")
-    events = add_external_results(dedupe(sports + calendar_events))
-    today = datetime.now(TZ).date()
+    events = add_external_results(dedupe(archived + sports + calendar_events))
+    today = now.date()
     retained = [event for event in events if (event.start.date() if isinstance(event.start, datetime) else event.start) >= ARCHIVE_START]
     future_count = sum((event.start.date() if isinstance(event.start, datetime) else event.start) >= today for event in retained)
     if not retained or not future_count:
