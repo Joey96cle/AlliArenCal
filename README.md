@@ -77,7 +77,7 @@ Der Ablauf:
 7. **docs/allianz-arena.ics** und **docs/status.json** aktualisieren
 8. Änderungen automatisch in den Branch **main** übertragen und über GitHub Pages veröffentlichen
 
-Wenn keine zukünftige Veranstaltung erkannt wird, bleibt die bestehende ICS-Datei aus Sicherheitsgründen unverändert.
+Wenn die Quellen vorübergehend keine zukünftige Veranstaltung liefern, verwendet der Workflow automatisch die bestehende ICS-Datei als Backup. Der Lauf bleibt erfolgreich und versucht die Aktualisierung am nächsten Tag erneut; im Status wird dann **fallback_used: true** vermerkt.
 
 ## Status prüfen
 
@@ -87,6 +87,7 @@ Der aktuelle technische Status steht in [docs/status.json](docs/status.json):
 - **events:** Gesamtzahl der enthaltenen vergangenen und zukünftigen Veranstaltungen
 - **future_events:** Anzahl der zukünftigen Veranstaltungen
 - **archive_start:** Beginn des Kalendersarchivs (aktuell 2026-01-01)
+- **fallback_used:** zeigt an, ob wegen leerer Quelldaten die bestehende ICS als Backup verwendet wurde
 - **failed_pages:** Seiten, die beim Abruf nicht erreichbar waren
 
 Ein erfolgreicher Lauf wird unter **Actions** mit einem grünen Haken angezeigt. Danach veröffentlicht der automatische Workflow **pages build and deployment** die neue ICS-Datei.
