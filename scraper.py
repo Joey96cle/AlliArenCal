@@ -550,16 +550,48 @@ def main() -> None:
         if event_sort_key(event) < now
         and (event.start.date() if isinstance(event.start, datetime) else event.start) >= ARCHIVE_START
     ]
-    sports = parse_sports(fetch(SPORTS_URL))
-    calendar_events: list[Event] = []
     failures: list[str] = []
+    try:
+        sports = parse_sports(fetch(SPORTS_URL))
+    except Exception as exc:
+        sports = []
+        failures.append(f"{SPORTS_URL}: {exc}")
+    calendar_events: list[Event] = []
     for url in month_urls():
         try:
             calendar_events.extend(parse_calendar_page(fetch(url), url))
         except Exception as exc:
             failures.append(f"{url}: {exc}")
-    events = add_external_results(dedupe(archived + sports + calendar_events))
     today = now.date()
+    fresh_events = dedupe(sports + calendar_events)
+    fresh_future_count = sum(
+        (event.start.date() if isinstance(event.start, datetime) else event.start) >= today
+        for event in fresh_events
+    )
+    # Wenn die Quellen vorübergehend leer oder unlesbar sind, darf weder das
+    # Archiv noch die Liste zukünftiger Termine überschrieben werden. Der Job
+    # bleibt erfolgreich und versucht es beim nächsten täglichen Lauf erneut.
+    if not fresh_future_count:
+        existing_retained = [
+            event for event in existing
+            if (event.start.date() if isinstance(event.start, datetime) else event.start) >= ARCHIVE_START
+        ]
+        existing_future_count = sum(
+            (event.start.date() if isinstance(event.start, datetime) else event.start) >= today
+            for event in existing_retained
+        )
+        if not existing_retained or not existing_future_count:
+            raise RuntimeError("Keine zukünftigen Veranstaltungen erkannt und kein verwendbares Kalender-Backup vorhanden.")
+        failures.append("Keine zukünftigen Veranstaltungen aus den Quellen erkannt; bestehende ICS-Datei unverändert beibehalten.")
+        updated_at = datetime.now(TZ)
+        STATUS.write_text(json.dumps({
+            "updated_at": updated_at.isoformat(), "events": len(existing_retained),
+            "future_events": existing_future_count, "archive_start": ARCHIVE_START.isoformat(),
+            "fallback_used": True, "failed_pages": failures,
+        }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        print(f"Quellen lieferten keine zukünftigen Termine; bestehende ICS mit {len(existing_retained)} Veranstaltungen beibehalten.")
+        return
+    events = add_external_results(dedupe(archived + fresh_events))
     retained = [event for event in events if (event.start.date() if isinstance(event.start, datetime) else event.start) >= ARCHIVE_START]
     future_count = sum((event.start.date() if isinstance(event.start, datetime) else event.start) >= today for event in retained)
     if not retained or not future_count:
@@ -569,7 +601,8 @@ def main() -> None:
     OUT.write_text(make_ics(retained, updated_at), encoding="utf-8", newline="")
     STATUS.write_text(json.dumps({
         "updated_at": updated_at.isoformat(), "events": len(retained),
-        "future_events": future_count, "archive_start": ARCHIVE_START.isoformat(), "failed_pages": failures,
+        "future_events": future_count, "archive_start": ARCHIVE_START.isoformat(),
+        "fallback_used": False, "failed_pages": failures,
     }, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(f"{len(retained)} Veranstaltungen geschrieben ({future_count} zukünftig); {len(failures)} Seitenfehler.")
 
