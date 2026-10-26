@@ -1,10 +1,8 @@
 {
-  "updated_at": "2026-10-25T10:11:20.005657+01:00",
+  "updated_at": "2026-10-26T11:13:17.057528+01:00",
   "events": 25,
   "future_events": 7,
   "archive_start": "2026-01-01",
-  "fallback_used": true,
-  "failed_pages": [
-    "Keine zukünftigen Veranstaltungen aus den Quellen erkannt; bestehende ICS-Datei unverändert beibehalten."
-  ]
+  "fallback_used": false,
+  "failed_pages": []
 }
