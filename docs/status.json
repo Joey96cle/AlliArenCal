@@ -1,10 +1,11 @@
 {
-  "updated_at": "2026-10-30T11:53:57.351432+01:00",
+  "updated_at": "2026-10-31T11:25:14.029687+01:00",
   "events": 25,
   "future_events": 6,
   "archive_start": "2026-01-01",
   "fallback_used": true,
   "failed_pages": [
+    "https://allianz-arena.com/de/events/2027-2028/2027-10: Abruf fehlgeschlagen: https://r.jina.ai/http://allianz-arena.com/de/events/2027-2028/2027-10: 429 Client Error: Too Many Requests for url: https://r.jina.ai/http://allianz-arena.com/de/events/2027-2028/2027-10 | https://allianz-arena.com/de/events/2027-2028/2027-10: HTTPSConnectionPool(host='allianz-arena.com', port=443): Read timed out. (read timeout=20)",
     "Keine zukünftigen Veranstaltungen aus den Quellen erkannt; bestehende ICS-Datei unverändert beibehalten."
   ]
 }
