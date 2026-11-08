@@ -1,10 +1,10 @@
 {
-  "updated_at": "2026-11-07T12:06:29.830633+01:00",
+  "updated_at": "2026-11-08T12:18:44.775773+01:00",
   "events": 29,
   "future_events": 9,
   "archive_start": "2026-01-01",
-  "fallback_used": false,
+  "fallback_used": true,
   "failed_pages": [
-    "https://allianz-arena.com/de/events/2026-2027/2026-7: Abruf fehlgeschlagen: https://r.jina.ai/http://allianz-arena.com/de/events/2026-2027/2026-7: 503 Server Error: Service Unavailable for url: https://r.jina.ai/http://allianz-arena.com/de/events/2026-2027/2026-7 | https://allianz-arena.com/de/events/2026-2027/2026-7: HTTPSConnectionPool(host='allianz-arena.com', port=443): Read timed out. (read timeout=20)"
+    "Keine zukünftigen Veranstaltungen aus den Quellen erkannt; bestehende ICS-Datei unverändert beibehalten."
   ]
 }
